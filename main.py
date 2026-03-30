@@ -11,8 +11,6 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "").replace(
     "postgresql://", "postgresql+asyncpg://"
 )
 
-DATABASE_URL = "postgresql+asyncpg://user:password@localhost/dbname"
-
 database = databases.Database(DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
