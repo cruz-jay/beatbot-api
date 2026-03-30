@@ -131,3 +131,4 @@ async def delete_track(track_id: int):
         raise HTTPException(status_code=404, detail="Track not found")
     await database.execute(
         tracks.delete().where(tracks.c.id == track_id)
+    )
