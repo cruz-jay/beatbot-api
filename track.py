@@ -5,6 +5,11 @@ from typing import Optional
 import databases
 import sqlalchemy
 from datetime import datetime
+import os
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "").replace(
+    "postgresql://", "postgresql+asyncpg://"
+)
 
 DATABASE_URL = "postgresql+asyncpg://user:password@localhost/dbname"
 
