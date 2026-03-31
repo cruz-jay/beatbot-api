@@ -76,6 +76,11 @@ async def shutdown():
 
 # --- Routes ---
 
+
+@app.get("/")
+async def root():
+    return {"status": "ok"}
+
 @app.get("/tracks", response_model=list[TrackOut])
 async def get_tracks():
     query = tracks.select().order_by(tracks.c.created_at.desc())
