@@ -98,7 +98,7 @@ async def get_track(track_id: int):
 
 @app.post("/tracks", response_model=TrackOut, status_code=201)
 async def create_track(track: TrackCreate):
-    query = tracks.insert().values(**track.model_dump())
+    query = tracks.insert().values(**track.model_dump(), created_at=datetime.utcnow())
     track_id = await database.execute(query)
     return await database.fetch_one(
         tracks.select().where(tracks.c.id == track_id)
