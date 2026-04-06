@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 import databases
 import sqlalchemy
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").replace(
@@ -67,6 +67,15 @@ class TrackOut(TrackCreate):
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    await database.execute(sqlalchemy.text(
+        "CREATE SEQUENCE IF NOT EXISTS tracks_id_seq"
+    ))
+    await database.execute(sqlalchemy.text(
+        """SELECT setval('tracks_id_seq', COALESCE((SELECT MAX(id) FROM "TRACKS"), 0) + 1, false)"""
+    ))
+    await database.execute(sqlalchemy.text(
+        """ALTER TABLE "TRACKS" ALTER COLUMN id SET DEFAULT nextval('tracks_id_seq')"""
+    ))
 
 
 @app.on_event("shutdown")
@@ -98,7 +107,7 @@ async def get_track(track_id: int):
 
 @app.post("/tracks", response_model=TrackOut, status_code=201)
 async def create_track(track: TrackCreate):
-    query = tracks.insert().values(**track.model_dump(), created_at=datetime.utcnow())
+    query = tracks.insert().values(**track.model_dump(), created_at=datetime.now(timezone.utc))
     track_id = await database.execute(query)
     return await database.fetch_one(
         tracks.select().where(tracks.c.id == track_id)
